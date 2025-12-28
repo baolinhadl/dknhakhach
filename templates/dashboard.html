@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Tổng quan</h1>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Đăng ký chờ duyệt</div>
+      <div class="card-body">
+        {% if cho_don %}
+          <ul class="list-group">
+            {% for dk in cho_don %}
+            <li class="list-group-item">
+              <strong>{{ dk.hoten_nguoitham }}</strong> ({{ dk.moiquanhe or 'N/A' }}) thăm {{ dk.quannhan.hovaten }}<br>
+              {{ dk.tungay|fmt_date }} - {{ dk.denngay|fmt_date }}
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Không có hồ sơ chờ.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Đã duyệt</div>
+      <div class="card-body">
+        {% if da_duyet %}
+          <ul class="list-group">
+            {% for dk in da_duyet %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <strong>{{ dk.hoten_nguoitham }}</strong> thăm {{ dk.quannhan.hovaten }}<br>
+                {{ dk.tungay|fmt_date }} - {{ dk.denngay|fmt_date }}
+              </div>
+              <span class="badge bg-success">Đã duyệt</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Chưa có.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Khách đang ở</div>
+      <div class="card-body">
+        {% if dang_o %}
+          <div class="list-group">
+            {% for nk in dang_o %}
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>{{ nk.dangky.hoten_nguoitham }}</strong> đang thăm {{ nk.dangky.quannhan.hovaten }}<br>
+                    Từ {{ nk.thoigian_den|fmt_date(True) }}
+                  </div>
+                  <form method="post" action="{{ url_for('checkout', nhakhach_id=nk.id) }}">
+                    <button class="btn btn-outline-secondary btn-sm">Đánh dấu rời</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Không có khách lưu trú.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Lịch sử gần đây</div>
+      <div class="card-body">
+        {% if lich_su %}
+          <div class="list-group">
+            {% for nk in lich_su %}
+              <div class="list-group-item">
+                <strong>{{ nk.dangky.hoten_nguoitham }}</strong> thăm {{ nk.dangky.quannhan.hovaten }}<br>
+                Đến: {{ nk.thoigian_den|fmt_date(True) }}{% if nk.thoigian_ve %} - Rời: {{ nk.thoigian_ve|fmt_date(True) }}{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Chưa có lịch sử.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
