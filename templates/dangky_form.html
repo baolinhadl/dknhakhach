@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title mb-3">Đăng ký thăm nhà khách</h4>
+          <form method="post">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Chọn quân nhân *</label>
+                <select class="form-select" name="quannhan_id" required>
+                  <option value="">-- Chọn --</option>
+                  {% for soldier in soldiers %}
+                    <option value="{{ soldier.id }}">{{ soldier.hovaten }} ({{ soldier.donvi or 'không đơn vị' }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Họ tên người thăm *</label>
+                <input class="form-control" name="hoten_nguoitham" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Mối quan hệ</label>
+                <input class="form-control" name="moiquanhe" placeholder="VD: Vợ, bố mẹ...">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Số điện thoại</label>
+                <input class="form-control" name="sodienthoai">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Ghi chú</label>
+                <input class="form-control" name="ghichu">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Từ ngày *</label>
+                <input class="form-control" type="date" name="tungay" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Đến ngày *</label>
+                <input class="form-control" type="date" name="denngay" required>
+              </div>
+            </div>
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+              <a class="btn btn-link" href="{{ url_for('index') }}">Quay lại</a>
+              <button class="btn btn-primary" type="submit">Gửi đăng ký</button>
+            </div>
+          </form>
+          {% if not soldiers %}
+            <div class="alert alert-warning mt-3">
+              Bạn cần tạo hồ sơ quân nhân trước khi đăng ký.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

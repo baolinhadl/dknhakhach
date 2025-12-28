@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="row mb-4 g-3 align-items-stretch">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Đăng ký mới</h5>
+          <p class="card-text">Tạo hồ sơ đăng ký trước khi khách đến nhà khách.</p>
+          <a class="btn btn-warning" href="{{ url_for('add_dangky') }}">Tạo đăng ký</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Hồ sơ quân nhân</h5>
+          <p class="card-text">Quản lý quân nhân để liên kết với lượt thăm.</p>
+          <a class="btn btn-light border" href="{{ url_for('add_quannhan') }}">Thêm quân nhân</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Dữ liệu mẫu</h5>
+          <p class="card-text">Tạo nhanh dữ liệu để thử nghiệm giao diện.</p>
+          <form method="post" action="{{ url_for('seed_data') }}">
+            <button class="btn btn-outline-secondary" type="submit">Tạo dữ liệu mẫu</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">Đăng ký chờ duyệt</h4>
+      <span class="badge bg-secondary">{{ pending_registrations|length }} mục</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Quân nhân</th>
+            <th>Người thăm</th>
+            <th>Thời gian</th>
+            <th>Liên hệ</th>
+            <th>Ghi chú</th>
+            <th class="text-end">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if pending_registrations %}
+          {% for item in pending_registrations %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ item.quannhan.hovaten }}</div>
+                <small class="text-muted">{{ item.quannhan.capbac }} {{ item.quannhan.donvi }}</small>
+              </td>
+              <td>
+                <div class="fw-semibold">{{ item.hoten_nguoitham }}</div>
+                <small class="text-muted">{{ item.moiquanhe }}</small>
+              </td>
+              <td>{{ item.tungay.strftime('%d/%m/%Y') }} - {{ item.denngay.strftime('%d/%m/%Y') }}</td>
+              <td>{{ item.sodienthoai or '—' }}</td>
+              <td>{{ item.ghichu or '—' }}</td>
+              <td class="text-end">
+                <form class="d-inline" method="post" action="{{ url_for('approve_dangky', dangky_id=item.id) }}">
+                  <input type="hidden" name="action" value="approve">
+                  <input class="form-control form-control-sm mb-2" type="text" name="nguoi_duyet" placeholder="Người duyệt (tùy chọn)">
+                  <button class="btn btn-success btn-sm" type="submit">Duyệt</button>
+                </form>
+                <form class="d-inline" method="post" action="{{ url_for('approve_dangky', dangky_id=item.id) }}">
+                  <input type="hidden" name="action" value="reject">
+                  <button class="btn btn-outline-danger btn-sm" type="submit">Từ chối</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted">Không có đăng ký chờ duyệt</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">Đăng ký đã duyệt</h4>
+      <span class="badge bg-success">{{ approved_registrations|length }} mục</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Quân nhân</th>
+            <th>Khách</th>
+            <th>Thời gian dự kiến</th>
+            <th>Trạng thái</th>
+            <th class="text-end">Check-in</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if approved_registrations %}
+          {% for item in approved_registrations %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ item.quannhan.hovaten }}</div>
+                <small class="text-muted">{{ item.quannhan.capbac }} {{ item.quannhan.chucvu }}</small>
+              </td>
+              <td>
+                <div class="fw-semibold">{{ item.hoten_nguoitham }}</div>
+                <small class="text-muted">{{ item.moiquanhe }}</small>
+              </td>
+              <td>{{ item.tungay.strftime('%d/%m/%Y') }} → {{ item.denngay.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {% set active = item.nhakhach_tham | selectattr('trangthai', 'equalto', 'Đang ở') | list %}
+                {% if active %}
+                  <span class="badge bg-success">Đang ở</span>
+                {% else %}
+                  <span class="badge bg-secondary">Chưa check-in</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <form class="row gx-2 align-items-center" method="post" action="{{ url_for('checkin', dangky_id=item.id) }}">
+                  <div class="col-md-5">
+                    <input class="form-control form-control-sm" type="datetime-local" name="thoigian_den" aria-label="Thời gian đến">
+                  </div>
+                  <div class="col-md-4">
+                    <input class="form-control form-control-sm" type="text" name="canbo_tiepnhan" placeholder="Cán bộ tiếp nhận">
+                  </div>
+                  <div class="col-md-3 text-end">
+                    <button class="btn btn-primary btn-sm" type="submit">Check-in</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="5" class="text-center text-muted">Chưa có đăng ký đã duyệt</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">Khách đang ở</h4>
+      <span class="badge bg-info">{{ active_guests|length }} khách</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Quân nhân</th>
+            <th>Khách</th>
+            <th>Đến</th>
+            <th>Cán bộ nhận</th>
+            <th class="text-end">Check-out</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if active_guests %}
+          {% for guest in active_guests %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ guest.dangky.quannhan.hovaten }}</div>
+                <small class="text-muted">{{ guest.dangky.quannhan.donvi }}</small>
+              </td>
+              <td>
+                <div class="fw-semibold">{{ guest.dangky.hoten_nguoitham }}</div>
+                <small class="text-muted">{{ guest.dangky.moiquanhe }}</small>
+              </td>
+              <td>{{ guest.thoigian_den.strftime('%H:%M %d/%m/%Y') }}</td>
+              <td>{{ guest.canbo_tiepnhan or '—' }}</td>
+              <td class="text-end">
+                <form class="row gx-2 align-items-center" method="post" action="{{ url_for('checkout', nhakhach_id=guest.id) }}">
+                  <div class="col-md-6">
+                    <input class="form-control form-control-sm" type="datetime-local" name="thoigian_ve" aria-label="Thời gian về">
+                  </div>
+                  <div class="col-md-6 text-end">
+                    <button class="btn btn-outline-primary btn-sm" type="submit">Check-out</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="5" class="text-center text-muted">Chưa có khách đang ở</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">Lịch sử ra/vào gần nhất</h4>
+      <small class="text-muted">Hiển thị tối đa 50 bản ghi</small>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Quân nhân</th>
+            <th>Khách</th>
+            <th>Đến</th>
+            <th>Về</th>
+            <th>Trạng thái</th>
+            <th>Ghi chú</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if history %}
+          {% for record in history %}
+            <tr>
+              <td>{{ record.dangky.quannhan.hovaten }}</td>
+              <td>
+                <div class="fw-semibold">{{ record.dangky.hoten_nguoitham }}</div>
+                <small class="text-muted">{{ record.dangky.moiquanhe }}</small>
+              </td>
+              <td>{{ record.thoigian_den.strftime('%H:%M %d/%m/%Y') }}</td>
+              <td>{{ record.thoigian_ve.strftime('%H:%M %d/%m/%Y') if record.thoigian_ve else '—' }}</td>
+              <td>{{ record.trangthai }}</td>
+              <td>{{ record.ghichu or '—' }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted">Chưa có lịch sử</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-4">
+    <h4>Danh sách quân nhân</h4>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+      {% for soldier in soldiers %}
+        <div class="col">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title mb-1">{{ soldier.hovaten }}</h6>
+              <p class="card-subtitle text-muted mb-2">{{ soldier.capbac }} {{ soldier.chucvu }}</p>
+              <p class="mb-1"><strong>Đơn vị:</strong> {{ soldier.donvi or '—' }}</p>
+              <p class="mb-1"><strong>Liên hệ gia đình:</strong> {{ soldier.sdtgiadinh or '—' }}</p>
+              {% if soldier.ghichu %}
+                <p class="mb-0 text-muted small">{{ soldier.ghichu }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <div class="alert alert-light border">Chưa có hồ sơ quân nhân</div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
