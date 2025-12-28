@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Check-in nhà khách</h1>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Tạo lượt check-in</div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">Đăng ký đã duyệt</label>
+            <select name="dangky_id" class="form-select" required>
+              <option value="">-- chọn --</option>
+              {% for dk in ds_duyet %}
+                <option value="{{ dk.id }}">{{ dk.hoten_nguoitham }} → {{ dk.quannhan.hovaten }} ({{ dk.tungay|fmt_date }} - {{ dk.denngay|fmt_date }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Cán bộ tiếp nhận</label>
+            <input name="canbo_tiepnhan" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ghi chú</label>
+            <textarea name="ghichu" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="text-end">
+            <button class="btn btn-primary">Check-in</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

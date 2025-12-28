@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Đăng ký thăm thân</h1>
+<div class="row">
+  <div class="col-md-5">
+    <div class="card mb-4">
+      <div class="card-header">Tạo đăng ký</div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">Quân nhân *</label>
+            <select name="quannhan_id" class="form-select" required>
+              <option value="">-- chọn --</option>
+              {% for q in quannhan_list %}
+              <option value="{{ q.id }}">{{ q.hovaten }} ({{ q.donvi or 'N/A' }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Họ tên người thăm *</label>
+            <input name="hoten_nguoitham" class="form-control" required>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="form-label">Mối quan hệ</label>
+              <input name="moiquanhe" class="form-control">
+            </div>
+            <div class="col">
+              <label class="form-label">Số điện thoại</label>
+              <input name="sodienthoai" class="form-control">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col">
+              <label class="form-label">Từ ngày *</label>
+              <input type="date" name="tungay" class="form-control" required>
+            </div>
+            <div class="col">
+              <label class="form-label">Đến ngày *</label>
+              <input type="date" name="denngay" class="form-control" required>
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Ghi chú</label>
+            <textarea name="ghichu" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="mt-3 text-end">
+            <button class="btn btn-primary">Gửi đăng ký</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Danh sách đăng ký</span>
+        <span class="small text-muted">Chọn "Duyệt" để phép check-in</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Khách thăm</th>
+              <th>Quân nhân</th>
+              <th>Thời gian</th>
+              <th>Trạng thái</th>
+              <th class="text-end">Duyệt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dk in danh_sach %}
+            <tr>
+              <td>
+                <strong>{{ dk.hoten_nguoitham }}</strong><br>
+                <small>{{ dk.moiquanhe or 'N/A' }} - {{ dk.sodienthoai or 'N/A' }}</small>
+              </td>
+              <td>{{ dk.quannhan.hovaten }}</td>
+              <td>{{ dk.tungay|fmt_date }} - {{ dk.denngay|fmt_date }}</td>
+              <td>
+                {% if dk.trangthai_duyet == 'Đã duyệt' %}
+                  <span class="badge bg-success">Đã duyệt</span>
+                {% elif dk.trangthai_duyet == 'Từ chối' %}
+                  <span class="badge bg-danger">Từ chối</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <form method="post" action="{{ url_for('duyet_dangky', dangky_id=dk.id) }}" class="d-flex gap-2 justify-content-end">
+                  <input name="nguoi_duyet" class="form-control form-control-sm" placeholder="Người duyệt">
+                  <button class="btn btn-outline-success btn-sm" name="action" value="approve">Duyệt</button>
+                  <button class="btn btn-outline-danger btn-sm" name="action" value="reject">Từ chối</button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Chưa có đăng ký</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

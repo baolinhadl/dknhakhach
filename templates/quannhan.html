@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Quản lý quân nhân</h1>
+<div class="row">
+  <div class="col-md-5">
+    <div class="card mb-4">
+      <div class="card-header">Thêm quân nhân</div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">Họ và tên *</label>
+            <input name="hovaten" class="form-control" required>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" name="ngaysinh" class="form-control">
+            </div>
+            <div class="col">
+              <label class="form-label">Ngày nhập ngũ</label>
+              <input type="date" name="nhapngu" class="form-control">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col">
+              <label class="form-label">Cấp bậc</label>
+              <input name="capbac" class="form-control">
+            </div>
+            <div class="col">
+              <label class="form-label">Chức vụ</label>
+              <input name="chucvu" class="form-control">
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Đơn vị</label>
+            <input name="donvi" class="form-control">
+          </div>
+          <div class="row mt-3">
+            <div class="col">
+              <label class="form-label">Dân tộc</label>
+              <input name="dantoc" class="form-control">
+            </div>
+            <div class="col">
+              <label class="form-label">Tôn giáo</label>
+              <input name="tongiao" class="form-control">
+            </div>
+            <div class="col">
+              <label class="form-label">Văn hóa</label>
+              <input name="vanhoa" class="form-control">
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Họ tên cha/mẹ</label>
+            <textarea name="hotencha" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Quê quán</label>
+            <textarea name="quequan" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">SĐT gia đình</label>
+            <input name="sdtgiadinh" class="form-control">
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Ghi chú</label>
+            <textarea name="ghichu" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="mt-3 text-end">
+            <button class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header">Danh sách</div>
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Họ và tên</th>
+              <th>Đơn vị</th>
+              <th>Cấp bậc</th>
+              <th>Chức vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in danh_sach %}
+            <tr>
+              <td>{{ q.hovaten }}</td>
+              <td>{{ q.donvi or '-' }}</td>
+              <td>{{ q.capbac or '-' }}</td>
+              <td>{{ q.chucvu or '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

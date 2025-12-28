@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Nhà khách</h1>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Đang ở</div>
+      <div class="card-body">
+        {% if dang_o %}
+          <div class="list-group">
+            {% for nk in dang_o %}
+            <div class="list-group-item d-flex justify-content-between">
+              <div>
+                <strong>{{ nk.dangky.hoten_nguoitham }}</strong> thăm {{ nk.dangky.quannhan.hovaten }}<br>
+                Check-in: {{ nk.thoigian_den|fmt_date(True) }}
+              </div>
+              <form method="post" action="{{ url_for('checkout', nhakhach_id=nk.id) }}">
+                <button class="btn btn-outline-secondary btn-sm">Đánh dấu rời</button>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">Không có khách đang ở.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Lịch sử</div>
+      <div class="card-body">
+        {% if lich_su %}
+          <div class="list-group">
+            {% for nk in lich_su %}
+            <div class="list-group-item">
+              <strong>{{ nk.dangky.hoten_nguoitham }}</strong> thăm {{ nk.dangky.quannhan.hovaten }}<br>
+              Đến: {{ nk.thoigian_den|fmt_date(True) }} {% if nk.thoigian_ve %}– Rời: {{ nk.thoigian_ve|fmt_date(True) }}{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">Chưa có lịch sử.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
